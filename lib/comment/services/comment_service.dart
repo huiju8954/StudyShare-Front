@@ -18,16 +18,13 @@ class CommentService {
     int? noteId,
     int? communityId,
     required String content,
-    int? parentCommentId, // ✅ [통합] 대댓글용 부모 ID 파라미터 추가
+    int? parentCommentId, // ✅ 대댓글용 부모 ID 파라미터
   }) async {
     final url = Uri.parse(baseUrl);
 
-    // ✅ [유지] 세션 쿠키 로드 및 체크 (인증 로직)
+    // 🚨 [핵심 수정] 세션 유무 검사 로직을 제거하고, 쿠키를 조건부로만 사용합니다.
+    // (백엔드 CommentController가 하드코딩된 user ID 1을 사용하므로 세션이 필수가 아닙니다.)
     final sessionCookie = await AuthService.loadSession();
-    if (sessionCookie == null || sessionCookie.isEmpty) {
-      if (kDebugMode) print('댓글 작성 실패: 로그인 세션이 없습니다.');
-      return false;
-    }
 
     // 보낼 데이터 (JSON)
     final Map<String, dynamic> bodyData = {
@@ -35,16 +32,18 @@ class CommentService {
     };
     if (noteId != null) bodyData['noteId'] = noteId;
     if (communityId != null) bodyData['communityId'] = communityId;
-
-    // ✅ [통합] 대댓글이면 부모 ID 포함
     if (parentCommentId != null) bodyData['parentCommentId'] = parentCommentId;
 
     try {
-      // ✅ [통합] HTTP 요청 헤더에 세션 쿠키 및 UTF-8 인코딩 추가
-      final headers = {
+      // ✅ [수정] HTTP 요청 헤더에 세션 쿠키를 조건부로 추가합니다.
+      final Map<String, String> headers = {
         'Content-Type': 'application/json; charset=UTF-8',
-        'Cookie': sessionCookie, // 인증 정보 (세션 쿠키) 추가
       };
+
+      // 세션 쿠키가 있을 경우에만 헤더에 포함
+      if (sessionCookie != null && sessionCookie.isNotEmpty) {
+        headers['Cookie'] = sessionCookie;
+      }
 
       final response = await http.post(
         url,
@@ -71,18 +70,17 @@ class CommentService {
   Future<List<CommentModel>> getComments(String type, int id) async {
     final url = Uri.parse('$baseUrl/$type/$id');
 
-    // ✅ [유지] 세션 쿠키 로드 및 체크 (인증 로직)
+    // 🚨 [핵심 수정] 세션 유무 검사 로직을 제거하고, 쿠키를 조건부로만 사용합니다.
     final sessionCookie = await AuthService.loadSession();
-    if (sessionCookie == null || sessionCookie.isEmpty) {
-      if (kDebugMode) print('댓글 조회 실패: 로그인 세션이 없습니다.');
-      return [];
-    }
 
-    // ✅ [통합] HTTP 요청 헤더에 세션 쿠키 및 UTF-8 인코딩 추가
-    final headers = {
+    // ✅ [수정] HTTP 요청 헤더에 세션 쿠키를 조건부로 추가합니다.
+    final Map<String, String> headers = {
       'Content-Type': 'application/json; charset=UTF-8',
-      'Cookie': sessionCookie,
     };
+
+    if (sessionCookie != null && sessionCookie.isNotEmpty) {
+      headers['Cookie'] = sessionCookie;
+    }
 
     try {
       final response = await http.get(
