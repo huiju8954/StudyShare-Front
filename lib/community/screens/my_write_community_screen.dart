@@ -1,4 +1,4 @@
-// lib/community/screens/my_write_community_screen.dart (최종 병합 코드 - 오류 수정 완료)
+// lib/community/screens/my_write_community_screen.dart (수정 완료)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +16,8 @@ import 'package:studyshare/search/screens/search_screen.dart'
     hide MyBookmarkScreen;
 import 'package:studyshare/widgets/header.dart';
 import 'package:studyshare/bookmark/screens/my_bookmark_screen.dart';
+// 💡 [추가] 게시글 상세 화면 Import
+import 'package:studyshare/community/screens/community_detail_screen.dart';
 
 class MyWriteCommunityScreen extends StatefulWidget {
   const MyWriteCommunityScreen({super.key});
@@ -124,22 +126,35 @@ class _MyWriteCommunityScreenState extends State<MyWriteCommunityScreen> {
                                   String displayDate =
                                       logic.formatRelativeTime(post.createDate);
 
-                                  return Column(
-                                    children: [
-                                      _TableDataItem(
-                                        category: post.category,
-                                        title: post.title.isNotEmpty
-                                            ? post.title
-                                            : "(제목 없음)",
-                                        author: post.userId.toString(),
-                                        views: post.likesCount.toString(),
-                                        date: displayDate,
-                                      ),
-                                      const Divider(
-                                          height: 1,
-                                          thickness: 1,
-                                          color: Color(0xFFDDDDDD)),
-                                    ],
+                                  // 💡 [수정]: InkWell로 감싸서 클릭 이벤트 처리
+                                  return InkWell(
+                                    onTap: () {
+                                      // 게시글 클릭 시 상세 화면으로 이동
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              CommunityDetailScreen(post: post),
+                                        ),
+                                      );
+                                    },
+                                    child: Column(
+                                      children: [
+                                        _TableDataItem(
+                                          category: post.category,
+                                          title: post.title.isNotEmpty
+                                              ? post.title
+                                              : "(제목 없음)",
+                                          author: post.userId.toString(),
+                                          views: post.likesCount.toString(),
+                                          date: displayDate,
+                                        ),
+                                        const Divider(
+                                            height: 1,
+                                            thickness: 1,
+                                            color: Color(0xFFDDDDDD)),
+                                      ],
+                                    ),
                                   );
                                 },
                               ),
