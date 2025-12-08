@@ -1,3 +1,5 @@
+// lib/note/screens/note_writing_screen.dart (서버 상태 로직 주석 처리 완료)
+
 import 'package:flutter/material.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:studyshare/note/services/note_service.dart';
@@ -43,8 +45,10 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
   final TextEditingController _titleController = TextEditingController();
 
   // 서버 상태 관련 상태 변수
+  /* // [주석 처리]: 서버 연결 상태 변수
   bool _isServerConnected = false;
   bool _isLoadingStatus = true;
+  */
 
   // 드롭다운 선택 값
   String _selectedSubject = '국어(공통)';
@@ -56,7 +60,8 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
   void initState() {
     super.initState();
     // 서버 상태 확인
-    _checkInitialServerStatus();
+    // [주석 처리]: 서버 상태 확인 로직 호출
+    // _checkInitialServerStatus();
 
     // ✅ [통합] 수정 모드 초기화 로직
     if (widget.note != null) {
@@ -78,6 +83,8 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
   }
 
   // 서버 상태 확인 로직
+  /*
+  // [주석 처리]: 서버 상태 확인 로직
   void _checkInitialServerStatus() async {
     final isConnected = await _noteService.checkServerStatus();
     if (mounted) {
@@ -87,6 +94,7 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
       });
     }
   }
+  */
 
   @override
   void dispose() {
@@ -106,6 +114,8 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
       return;
     }
 
+    /*
+    // [주석 처리]: 서버 연결 상태 확인 로직
     if (!_isServerConnected) {
       ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -113,6 +123,7 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
       );
       return;
     }
+    */
 
     // UI 로직: 로딩 상태 표시
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
@@ -214,7 +225,8 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
                     MaterialPageRoute(
                         builder: (context) => const MyBookmarkScreen())),
               ),
-              _buildServerStatusWidget(), // 서버 상태 표시 위젯
+              // [주석 처리]: 서버 상태 표시 위젯
+              // _buildServerStatusWidget(), // 서버 상태 표시 위젯
 
               Expanded(
                 child: SafeArea(
@@ -529,6 +541,8 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
   // --- Helper Widgets ---
 
   // 서버 상태를 시각적으로 보여주는 위젯
+  /*
+  // [주석 처리]: 서버 상태 표시 위젯
   Widget _buildServerStatusWidget() {
     Color color;
     String message;
@@ -574,6 +588,7 @@ class _NoteWritingScreenState extends State<NoteWritingScreen> {
       ),
     );
   }
+  */
 
   Widget _buildTipSection() {
     return Container(

@@ -1,8 +1,8 @@
-// lib/search/screens/search_screen.dart (최종 병합 코드)
+// lib/search/screens/search_screen.dart (최종 병합 코드 - 최근/인기 검색어 제거)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart'; // [제거]
 
 // 로직 및 모델
 import 'package:studyshare/note/services/note_share_logic.dart';
@@ -23,11 +23,12 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
-  List<String> _recentSearches = [];
+  // List<String> _recentSearches = []; // [제거]
   String _currentQuery = '';
-  bool _isSearching = false;
+  // bool _isSearching = false; // _currentQuery.isEmpty로 대체
 
-  // 💡 [임시] 인기 검색어 (정적 데이터로 표시)
+  // [제거] 인기 검색어 (정적 데이터)
+  /*
   final List<Map<String, String>> _popularSearches = const [
     {'rank': '1', 'term': '공부 잘하는 법'},
     {'rank': '2', 'term': '자격증 시험 일정'},
@@ -35,11 +36,12 @@ class _SearchScreenState extends State<SearchScreen> {
     {'rank': '4', 'term': '미적분 기본'},
     {'rank': '5', 'term': '글쓰기 팁'},
   ];
+  */
 
   @override
   void initState() {
     super.initState();
-    _loadRecentSearches();
+    // _loadRecentSearches(); // [제거]
     // 텍스트 필드 변경 감지 리스너 추가
     _searchController.addListener(() {
       setState(() {});
@@ -53,54 +55,21 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  // 최근 검색어 불러오기
-  Future<void> _loadRecentSearches() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _recentSearches = prefs.getStringList('recent_searches') ?? [];
-    });
-  }
-
-  // 최근 검색어 저장
-  Future<void> _saveRecentSearch(String query) async {
-    if (query.trim().isEmpty) return;
-    final prefs = await SharedPreferences.getInstance();
-    final searches = prefs.getStringList('recent_searches') ?? [];
-
-    searches.remove(query); // 중복 제거
-    searches.insert(0, query); // 맨 앞에 추가
-
-    if (searches.length > 10) {
-      searches.removeLast(); // 최대 10개 유지
-    }
-
-    await prefs.setStringList('recent_searches', searches);
-    _loadRecentSearches();
-  }
-
-  // 최근 검색어 삭제
-  Future<void> _removeRecentSearch(String query) async {
-    final prefs = await SharedPreferences.getInstance();
-    final searches = prefs.getStringList('recent_searches') ?? [];
-    searches.remove(query);
-    await prefs.setStringList('recent_searches', searches);
-    _loadRecentSearches();
-  }
-
-  // 전체 삭제
-  Future<void> _clearAllRecentSearches() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('recent_searches');
-    _loadRecentSearches();
-  }
+  // [제거] 최근 검색어 불러오기/저장/삭제 관련 모든 메서드
+  /*
+  Future<void> _loadRecentSearches() async { ... }
+  Future<void> _saveRecentSearch(String query) async { ... }
+  Future<void> _removeRecentSearch(String query) async { ... }
+  Future<void> _clearAllRecentSearches() async { ... }
+  */
 
   // 검색 실행
   void _performSearch(String query) {
     if (query.trim().isEmpty) return;
-    _saveRecentSearch(query);
+    // _saveRecentSearch(query); // [제거]
     setState(() {
       _currentQuery = query;
-      _isSearching = true;
+      // _isSearching = true; // [제거]
     });
     _focusNode.unfocus();
   }
@@ -155,7 +124,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         _searchController.clear();
                         setState(() {
                           _currentQuery = '';
-                          _isSearching = false;
+                          // _isSearching = false; // [제거]
                         });
                       },
                     )
@@ -164,158 +133,36 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
-      body: _isSearching
-          ? _buildSearchResults(searchNotes, searchPosts)
-          : _buildInitialSearchView(), // 💡 초기 검색/최근 검색 화면으로 대체
+      // 💡 [수정] _currentQuery.isEmpty에 따라 안내 메시지 또는 결과 표시
+      body: _currentQuery.isEmpty
+          ? _buildSimpleSearchPrompt()
+          : _buildSearchResults(searchNotes, searchPosts),
     );
   }
 
-  // 💡 초기 검색 및 인기 검색어 화면 (File 1의 디자인 통합)
-  Widget _buildInitialSearchView() {
-    return SingleChildScrollView(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 40.0, vertical: 80.0),
-            child: Column(
-              children: [
-                const Text(
-                  '검색어를 입력해주세요',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 36,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 70), // AppBar에 검색창이 있으므로 간격 조정
-
-                // 최근 검색어 (왼쪽) vs 인기 검색어 (오른쪽)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildRecentSearches()),
-                    const SizedBox(width: 50),
-                    Expanded(child: _buildStaticPopularSearches()),
-                  ],
-                ),
-                const SizedBox(height: 100),
-              ],
-            ),
+  // 💡 [추가] 초기 검색 화면 대체 위젯
+  Widget _buildSimpleSearchPrompt() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search, size: 80, color: Color(0xFFB3B3B3)),
+          SizedBox(height: 16),
+          Text(
+            '검색어를 입력하고 결과를 확인하세요.',
+            style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 24),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  // 💡 [통합] 최근 검색어 목록 (ListView + SharedPreferences 로직)
-  Widget _buildRecentSearches() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('최근 검색어',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 24)), // 폰트 크기 확대
-              if (_recentSearches.isNotEmpty)
-                TextButton(
-                  onPressed: _clearAllRecentSearches,
-                  child: const Text('전체 삭제',
-                      style: TextStyle(color: Colors.grey, fontSize: 18)),
-                ),
-            ],
-          ),
-        ),
-        if (_recentSearches.isEmpty)
-          const Text('최근 검색 기록이 없습니다',
-              style: TextStyle(color: Color(0xFFB3B3B3), fontSize: 20)),
-        ..._recentSearches.map((term) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      _searchController.text = term;
-                      _performSearch(term);
-                    },
-                    child: Text(term,
-                        style: const TextStyle(
-                            color: Color(0xFFAAAAAA),
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500)),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 24, color: Colors.grey),
-                  onPressed: () => _removeRecentSearch(term),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ],
-    );
-  }
+  // [제거] _buildInitialSearchView
+  // [제거] _buildRecentSearches
+  // [제거] _buildStaticPopularSearches
+  // [제거] _buildRankedSearchTerm
 
-  // 💡 [통합] 인기 검색어 목록 (File 1의 디자인 + 정적 데이터)
-  Widget _buildStaticPopularSearches() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('인기 검색어',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.w700)),
-        const SizedBox(height: 20),
-        ..._popularSearches
-            .map((item) => _buildRankedSearchTerm(
-                rank: item['rank']!, term: item['term']!))
-            .toList(),
-      ],
-    );
-  }
-
-  Widget _buildRankedSearchTerm({required String rank, required String term}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: InkWell(
-        onTap: () {
-          _searchController.text = term;
-          _performSearch(term);
-        },
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 17.5,
-              backgroundColor: const Color(0xFFFFCB30),
-              child: Text(rank,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700)),
-            ),
-            const SizedBox(width: 15),
-            Text(term,
-                style: const TextStyle(
-                    color: Color(0xFFAAAAAA),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 검색 결과 화면
+  // 검색 결과 화면 (기존 로직 유지)
   Widget _buildSearchResults(
       List<NoteModel> notes, List<CommunityModel> posts) {
     if (notes.isEmpty && posts.isEmpty) {
@@ -361,8 +208,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
                   ...posts.map((post) => _buildCommunityItem(post)),
+                  const SizedBox(height: 100),
                 ],
-                const SizedBox(height: 100),
               ],
             ),
           ),

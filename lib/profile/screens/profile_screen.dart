@@ -1,4 +1,4 @@
-// lib/profile/screens/profile_screen.dart (최종 병합 코드)
+// lib/profile/screens/profile_screen.dart (최종 병합 코드 - 중앙 정렬 적용)
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -92,145 +92,155 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
 
-                // 2. 프로필 내용
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 40.0, vertical: 50.0),
+                // 2. 프로필 내용 (중앙 정렬)
+                Center(
+                  // 💡 [수정] Center를 사용하여 가로 중앙 정렬
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: Column(
-                      children: [
-                        const CircleAvatar(
-                          radius: 45,
-                          backgroundColor: Color(0xFFE0E0E0),
-                          child:
-                              Icon(Icons.person, size: 50, color: Colors.white),
-                        ),
-                        const SizedBox(height: 20),
-                        // 💡 실제 닉네임 바인딩
-                        Text(
-                          logic.displayNickname,
-                          style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black),
-                        ),
-                        const SizedBox(height: 30),
+                    constraints:
+                        const BoxConstraints(maxWidth: 800), // 최대 너비 800 유지
+                    child: Padding(
+                      // 💡 [수정] 기존 Padding의 가로/세로 패딩을 ConstrainedBox 안쪽으로 이동
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40.0, vertical: 50.0),
+                      child: Column(
+                        children: [
+                          const CircleAvatar(
+                            radius: 45,
+                            backgroundColor: Color(0xFFE0E0E0),
+                            child: Icon(Icons.person,
+                                size: 50, color: Colors.white),
+                          ),
+                          const SizedBox(height: 20),
+                          // 💡 실제 닉네임 바인딩
+                          Text(
+                            logic.displayNickname,
+                            style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black),
+                          ),
+                          const SizedBox(height: 30),
 
-                        // 💡 작성글 및 좋아요 통계
-                        Row(
-                          children: [
-                            _buildStatItem(
-                                logic.noteCount.toString(), '작성한 노트'),
-                            const SizedBox(width: 20),
-                            _buildStatItem(logic.postCount.toString(), '작성한 글'),
-                            const SizedBox(width: 20),
-                            _buildStatItem(logic.likeCount.toString(), '좋아요 글'),
-                          ],
-                        ),
+                          // 💡 작성글 및 좋아요 통계
+                          Row(
+                            children: [
+                              _buildStatItem(
+                                  logic.noteCount.toString(), '작성한 노트'),
+                              const SizedBox(width: 20),
+                              _buildStatItem(
+                                  logic.postCount.toString(), '작성한 글'),
+                              const SizedBox(width: 20),
+                              _buildStatItem(
+                                  logic.likeCount.toString(), '좋아요 글'),
+                            ],
+                          ),
 
-                        const SizedBox(height: 50),
-                        _buildSectionTitle('내 활동'),
+                          const SizedBox(height: 50),
+                          _buildSectionTitle('내 활동'),
 
-                        // 💡 메뉴 아이템 (실제 카운트 및 화면 이동 적용)
-                        _buildProfileMenuItem(
-                          icon: Icons.description_outlined,
-                          title: '내가 작성한 노트',
-                          count: logic.noteCount.toString(),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const MyNoteScreen()));
-                          },
-                        ),
-                        _buildProfileMenuItem(
-                          icon: Icons.chat_bubble_outline,
-                          title: '내가 작성한 게시글',
-                          count: logic.postCount.toString(),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const MyCommunityScreen()));
-                          },
-                        ),
-                        _buildProfileMenuItem(
-                          icon: Icons.favorite_border,
-                          title: '좋아요 글',
-                          count: logic.likeCount.toString(),
-                          onTap: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const LikesScreen()));
-                          },
-                        ),
-                        _buildProfileMenuItem(
-                            icon: Icons.bookmark_border,
-                            title: '북마크',
-                            count: logic.bookmarkCount.toString(), // 북마크 개수 반영
+                          // 💡 메뉴 아이템 (실제 카운트 및 화면 이동 적용)
+                          _buildProfileMenuItem(
+                            icon: Icons.description_outlined,
+                            title: '내가 작성한 노트',
+                            count: logic.noteCount.toString(),
                             onTap: () {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const MyBookmarkScreen()));
-                            }),
-
-                        const SizedBox(height: 50),
-                        _buildSectionTitle('설정'),
-                        _buildProfileMenuItem(
-                            icon: Icons.edit_outlined,
-                            title: '프로필 편집',
+                                          const MyNoteScreen()));
+                            },
+                          ),
+                          _buildProfileMenuItem(
+                            icon: Icons.chat_bubble_outline,
+                            title: '내가 작성한 게시글',
+                            count: logic.postCount.toString(),
                             onTap: () {
-                              // TODO: 프로필 편집 화면으로 이동
-                            }),
-                        _buildProfileMenuItem(
-                            icon: Icons.notifications_outlined,
-                            title: '알림 설정',
-                            onTap: () {
-                              // TODO: 알림 설정 화면으로 이동
-                            }),
-                        _buildProfileMenuItem(
-                            icon: Icons.privacy_tip_outlined,
-                            title: '개인정보 처리방침',
-                            onTap: () {
-                              // TODO: 개인정보 처리방침 화면으로 이동
-                            }),
-                        const SizedBox(height: 30),
-
-                        // 로그아웃 버튼
-                        SizedBox(
-                          width: double.infinity,
-                          height: 40,
-                          child: OutlinedButton(
-                            onPressed: () async {
-                              // ⭐️ [로그아웃 로직 구현]
-                              // 1. ProfileLogic을 통해 로그아웃 처리
-                              await context.read<ProfileLogic>().logout();
-
-                              // 2. 로그인 화면으로 이동하며, 이전 화면 스택을 모두 제거
-                              if (context.mounted) {
-                                Navigator.pushAndRemoveUntil(
+                              Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const LoginScreen()),
-                                  (Route<dynamic> route) => false,
-                                );
-                              }
+                                          const MyCommunityScreen()));
                             },
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFFFF7B7B)),
-                              foregroundColor: const Color(0xFFFF7B7B),
-                            ),
-                            child: const Text('로그아웃'),
                           ),
-                        ),
-                      ],
+                          _buildProfileMenuItem(
+                            icon: Icons.favorite_border,
+                            title: '좋아요 글',
+                            count: logic.likeCount.toString(),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const LikesScreen()));
+                            },
+                          ),
+                          _buildProfileMenuItem(
+                              icon: Icons.bookmark_border,
+                              title: '북마크',
+                              count:
+                                  logic.bookmarkCount.toString(), // 북마크 개수 반영
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const MyBookmarkScreen()));
+                              }),
+
+                          const SizedBox(height: 50),
+                          _buildSectionTitle('설정'),
+                          _buildProfileMenuItem(
+                              icon: Icons.edit_outlined,
+                              title: '프로필 편집',
+                              onTap: () {
+                                // TODO: 프로필 편집 화면으로 이동
+                              }),
+                          _buildProfileMenuItem(
+                              icon: Icons.notifications_outlined,
+                              title: '알림 설정',
+                              onTap: () {
+                                // TODO: 알림 설정 화면으로 이동
+                              }),
+                          _buildProfileMenuItem(
+                              icon: Icons.privacy_tip_outlined,
+                              title: '개인정보 처리방침',
+                              onTap: () {
+                                // TODO: 개인정보 처리방침 화면으로 이동
+                              }),
+                          const SizedBox(height: 30),
+
+                          // 로그아웃 버튼
+                          SizedBox(
+                            width: double.infinity,
+                            height: 40,
+                            child: OutlinedButton(
+                              onPressed: () async {
+                                // ⭐️ [로그아웃 로직 구현]
+                                // 1. ProfileLogic을 통해 로그아웃 처리
+                                await context.read<ProfileLogic>().logout();
+
+                                // 2. 로그인 화면으로 이동하며, 이전 화면 스택을 모두 제거
+                                if (context.mounted) {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginScreen()),
+                                    (Route<dynamic> route) => false,
+                                  );
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side:
+                                    const BorderSide(color: Color(0xFFFF7B7B)),
+                                foregroundColor: const Color(0xFFFF7B7B),
+                              ),
+                              child: const Text('로그아웃'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
