@@ -111,7 +111,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     // 상단 여백 추가 (전체 콘텐츠를 아래로 이동)
                     const SizedBox(height: 50),
 
-                    Image.asset('assets/StudyShare_Logo.png', height: 60),
+                    Image.asset('assets/images/StudyShare_Logo.png',
+                        height: 60),
                     const SizedBox(height: 30), // 로고와 폼 간격
 
                     const Text('회원정보를 입력해주세요.',
